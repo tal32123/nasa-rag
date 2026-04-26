@@ -133,9 +133,8 @@ class ChromaEmbeddingPipelineTextOnly:
         Returns:
             True if document exists, False otherwise
         """
-        # TODO: Query collection for document ID
-        # TODO: Return True if exists, False otherwise
-        pass
+        result = self.collection.get(ids=[doc_id])
+        return bool(result["ids"])
     
     def update_document(self, doc_id: str, text: str, metadata: Dict[str, Any]) -> bool:
         """
@@ -238,20 +237,21 @@ class ChromaEmbeddingPipelineTextOnly:
         Returns:
             Embedding vector
         """
-        # TODO: Call OpenAI embeddings API
-        # TODO: Return embedding vector
-        # TODO: Add error handling
-        pass
+        response = self.openai_client.embeddings.create(
+            model=self.embedding_model,
+            input=text,
+        )
+        return response.data[0].embedding
 
     def generate_document_id(self, file_path: Path, metadata: Dict[str, Any]) -> str:
         """
         Generate stable document ID based on file path and chunk position
         This allows for document updates without changing IDs
         """
-        # TODO: Create consistent ID format
-        # TODO: Use mission, source, and chunk_index
-        # Format: mission_source_chunk_0001
-        pass
+        mission = metadata.get("mission", "unknown")
+        source = metadata.get("source", file_path.stem)
+        chunk_index = metadata.get("chunk_index", 0)
+        return f"{mission}_{source}_chunk_{chunk_index:04d}"
     
     def process_text_file(self, file_path: Path) -> List[Tuple[str, Dict[str, Any]]]:
         """

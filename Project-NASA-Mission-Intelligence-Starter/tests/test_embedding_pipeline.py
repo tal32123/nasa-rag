@@ -88,3 +88,61 @@ class TestChunkText:
             assert chunk_meta["source"] == "test_src"
             assert chunk_meta["mission"] == "challenger"
             assert chunk_meta["custom_key"] == "val"
+
+
+class TestGetEmbedding:
+    def test_returns_embedding_list(self):
+        p = _make_pipeline()
+        mock_resp = MagicMock()
+        mock_resp.data[0].embedding = [0.1, 0.2, 0.3]
+        p.openai_client.embeddings.create.return_value = mock_resp
+
+        result = p.get_embedding("test text")
+
+        assert result == [0.1, 0.2, 0.3]
+
+    def test_calls_correct_model(self):
+        p = _make_pipeline()
+        mock_resp = MagicMock()
+        mock_resp.data[0].embedding = [0.0]
+        p.openai_client.embeddings.create.return_value = mock_resp
+
+        p.get_embedding("text")
+
+        p.openai_client.embeddings.create.assert_called_once_with(
+            model=p.embedding_model,
+            input="text",
+        )
+
+
+class TestGenerateDocumentId:
+    def test_format_is_correct(self):
+        p = _make_pipeline()
+        file_path = Path("data/apollo11/a11_tec.txt")
+        meta = {"mission": "apollo_11", "source": "a11_tec", "chunk_index": 5}
+        doc_id = p.generate_document_id(file_path, meta)
+        assert doc_id == "apollo_11_a11_tec_chunk_0005"
+
+    def test_chunk_index_zero_padded(self):
+        p = _make_pipeline()
+        meta = {"mission": "challenger", "source": "sts51l", "chunk_index": 0}
+        doc_id = p.generate_document_id(Path("f.txt"), meta)
+        assert doc_id == "challenger_sts51l_chunk_0000"
+
+    def test_large_chunk_index(self):
+        p = _make_pipeline()
+        meta = {"mission": "apollo_13", "source": "src", "chunk_index": 9999}
+        doc_id = p.generate_document_id(Path("f.txt"), meta)
+        assert doc_id == "apollo_13_src_chunk_9999"
+
+
+class TestCheckDocumentExists:
+    def test_returns_true_when_ids_present(self):
+        p = _make_pipeline()
+        p.collection.get.return_value = {"ids": ["apollo_11_src_chunk_0001"]}
+        assert p.check_document_exists("apollo_11_src_chunk_0001") is True
+
+    def test_returns_false_when_ids_empty(self):
+        p = _make_pipeline()
+        p.collection.get.return_value = {"ids": []}
+        assert p.check_document_exists("nonexistent") is False
