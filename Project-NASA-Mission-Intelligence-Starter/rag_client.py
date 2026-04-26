@@ -69,46 +69,25 @@ def retrieve_documents(collection, query: str, n_results: int = 3,
     )
     return collection.query(query_texts=[query], n_results=n_results, where=where)
 
-def format_context(
-    documents: List[str],
-    metadatas: List[Dict],
-    distances: Optional[List[float]] = None,
-    ids: Optional[List[str]] = None,
-) -> str:
-    """Format retrieved documents into context, sorted by similarity and deduplicated."""
+def format_context(documents: List[str], metadatas: List[Dict]) -> str:
+    """Format retrieved documents into context"""
     if not documents:
         return ""
-
-    have_scores = distances is not None and ids is not None
-    items = list(zip(
-        documents,
-        metadatas,
-        distances if have_scores else [None] * len(documents),
-        ids if have_scores else [None] * len(documents),
-    ))
-
-    if have_scores:
-        seen_ids: set = set()
-        deduped = []
-        for item in items:
-            if item[3] not in seen_ids:
-                seen_ids.add(item[3])
-                deduped.append(item)
-        items = sorted(deduped, key=lambda x: x[2])
 
     _MAX_CHARS = 1500
     parts = ["=== Retrieved NASA Mission Context ===\n"]
 
-    for i, (doc, meta, dist, _) in enumerate(items, start=1):
+    seen: set = set()
+    for i, (doc, meta) in enumerate(zip(documents, metadatas), start=1):
+        if doc in seen:
+            continue
+        seen.add(doc)
+
         mission = meta.get("mission", "unknown").replace("_", " ").title()
         source = meta.get("source", "unknown")
         category = meta.get("document_category", "unknown").replace("_", " ").title()
 
-        if dist is not None:
-            header = f"[Source {i} | {mission} | {category} | {source} | Similarity: {1 - dist:.3f}]"
-        else:
-            header = f"[Source {i} | {mission} | {category} | {source}]"
-
+        header = f"[Source {i} | {mission} | {category} | {source}]"
         content = doc if len(doc) <= _MAX_CHARS else doc[:_MAX_CHARS] + "..."
         parts.append(f"{header}\n{content}")
 
