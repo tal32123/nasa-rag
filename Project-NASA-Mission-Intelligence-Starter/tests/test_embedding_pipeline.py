@@ -146,3 +146,76 @@ class TestCheckDocumentExists:
         p = _make_pipeline()
         p.collection.get.return_value = {"ids": []}
         assert p.check_document_exists("nonexistent") is False
+
+
+class TestAddDocumentsToCollection:
+    def _docs(self):
+        return [
+            ("text one", {"mission": "apollo_11", "source": "src", "chunk_index": 0}),
+            ("text two", {"mission": "apollo_11", "source": "src", "chunk_index": 1}),
+        ]
+
+    def test_empty_documents_returns_zero_stats(self):
+        p = _make_pipeline()
+        stats = p.add_documents_to_collection([], Path("test.txt"))
+        assert stats == {"added": 0, "updated": 0, "skipped": 0}
+
+    def test_skip_mode_skips_existing(self):
+        p = _make_pipeline()
+        p.check_document_exists = MagicMock(return_value=True)
+        p.get_embedding = MagicMock(return_value=[0.1])
+
+        stats = p.add_documents_to_collection(self._docs(), Path("test.txt"), update_mode="skip")
+
+        assert stats["skipped"] == 2
+        assert stats["added"] == 0
+        p.collection.add.assert_not_called()
+
+    def test_skip_mode_adds_new(self):
+        p = _make_pipeline()
+        p.check_document_exists = MagicMock(return_value=False)
+        p.get_embedding = MagicMock(return_value=[0.1])
+
+        stats = p.add_documents_to_collection(self._docs(), Path("test.txt"), update_mode="skip")
+
+        assert stats["added"] == 2
+        assert stats["skipped"] == 0
+        assert p.collection.add.call_count == 2
+
+    def test_replace_mode_deletes_existing_first(self):
+        p = _make_pipeline()
+        p.get_file_documents = MagicMock(return_value=["old_id_0", "old_id_1"])
+        p.get_embedding = MagicMock(return_value=[0.1])
+
+        p.add_documents_to_collection(self._docs(), Path("test.txt"), update_mode="replace")
+
+        p.collection.delete.assert_called_once_with(ids=["old_id_0", "old_id_1"])
+
+    def test_replace_mode_adds_all_docs(self):
+        p = _make_pipeline()
+        p.get_file_documents = MagicMock(return_value=[])
+        p.get_embedding = MagicMock(return_value=[0.1])
+
+        stats = p.add_documents_to_collection(self._docs(), Path("test.txt"), update_mode="replace")
+
+        assert stats["added"] == 2
+
+    def test_update_mode_updates_existing(self):
+        p = _make_pipeline()
+        p.check_document_exists = MagicMock(return_value=True)
+        p.update_document = MagicMock(return_value=True)
+
+        stats = p.add_documents_to_collection(self._docs(), Path("test.txt"), update_mode="update")
+
+        assert stats["updated"] == 2
+        assert stats["added"] == 0
+
+    def test_update_mode_adds_new_docs(self):
+        p = _make_pipeline()
+        p.check_document_exists = MagicMock(return_value=False)
+        p.get_embedding = MagicMock(return_value=[0.1])
+
+        stats = p.add_documents_to_collection(self._docs(), Path("test.txt"), update_mode="update")
+
+        assert stats["added"] == 2
+        assert stats["updated"] == 0

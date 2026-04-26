@@ -424,14 +424,54 @@ class ChromaEmbeddingPipelineTextOnly:
         
         stats = {'added': 0, 'updated': 0, 'skipped': 0}
         
-        # TODO: Handle different update modes (skip, update, replace)
-        # TODO: Process documents in batches
-        # TODO: For each document:
-        #   - Generate document ID
-        #   - Check if exists
-        #   - Get embedding
-        #   - Add or update in collection
-        # TODO: Return statistics
+        if update_mode == "replace":
+            existing_ids = self.get_file_documents(file_path)
+            if existing_ids:
+                self.collection.delete(ids=existing_ids)
+                logger.info("Deleted %d existing chunks for %s", len(existing_ids), file_path.name)
+
+        for i in range(0, len(documents), batch_size):
+            batch = documents[i : i + batch_size]
+
+            for text, metadata in batch:
+                doc_id = self.generate_document_id(file_path, metadata)
+
+                if update_mode == "replace":
+                    embedding = self.get_embedding(text)
+                    self.collection.add(
+                        ids=[doc_id],
+                        documents=[text],
+                        metadatas=[metadata],
+                        embeddings=[embedding],
+                    )
+                    stats["added"] += 1
+
+                elif update_mode == "update":
+                    if self.check_document_exists(doc_id):
+                        self.update_document(doc_id, text, metadata)
+                        stats["updated"] += 1
+                    else:
+                        embedding = self.get_embedding(text)
+                        self.collection.add(
+                            ids=[doc_id],
+                            documents=[text],
+                            metadatas=[metadata],
+                            embeddings=[embedding],
+                        )
+                        stats["added"] += 1
+
+                else:  # skip
+                    if self.check_document_exists(doc_id):
+                        stats["skipped"] += 1
+                    else:
+                        embedding = self.get_embedding(text)
+                        self.collection.add(
+                            ids=[doc_id],
+                            documents=[text],
+                            metadatas=[metadata],
+                            embeddings=[embedding],
+                        )
+                        stats["added"] += 1
 
         return stats
     
