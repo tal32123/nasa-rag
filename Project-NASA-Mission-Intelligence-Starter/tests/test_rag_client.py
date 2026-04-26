@@ -130,3 +130,47 @@ class TestInitializeRagSystem:
                 pass
             call_kwargs = mock_fn.call_args.kwargs
             assert call_kwargs["api_key"] == "sk-chroma"
+
+
+class TestDiscoverChromaBackends:
+    def test_no_chroma_dirs_returns_empty(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        result = rag_client.discover_chroma_backends()
+        assert result == {}
+
+    def test_finds_collection_and_builds_entry(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        (tmp_path / "chroma_db_nasa").mkdir()
+
+        mock_col = MagicMock()
+        mock_col.name = "nasa_missions"
+        mock_col.count.return_value = 42
+
+        with patch("rag_client.chromadb.PersistentClient") as mock_cls:
+            mock_cls.return_value.list_collections.return_value = [mock_col]
+            result = rag_client.discover_chroma_backends()
+
+        key = "chroma_db_nasa::nasa_missions"
+        assert key in result
+        assert result[key]["collection_name"] == "nasa_missions"
+        assert result[key]["doc_count"] == "42"
+        assert "chroma_db_nasa" in result[key]["display_name"]
+
+    def test_non_chroma_dir_ignored(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        (tmp_path / "some_other_dir").mkdir()
+        result = rag_client.discover_chroma_backends()
+        assert result == {}
+
+    def test_inaccessible_dir_creates_error_entry(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        (tmp_path / "chroma_db_bad").mkdir()
+
+        with patch("rag_client.chromadb.PersistentClient") as mock_cls:
+            mock_cls.side_effect = Exception("Permission denied")
+            result = rag_client.discover_chroma_backends()
+
+        key = "chroma_db_bad::error"
+        assert key in result
+        assert "error" in result[key]["display_name"].lower()
+        assert result[key]["doc_count"] == "0"
