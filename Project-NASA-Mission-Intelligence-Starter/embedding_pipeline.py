@@ -499,18 +499,51 @@ class ChromaEmbeddingPipelineTextOnly:
             'missions': {}
         }
         
-        # TODO: Get files to process
-        # TODO: Loop through each file
-        # TODO: Process file and add to collection
-        # TODO: Update statistics
-        # TODO: Handle errors gracefully
-        
+        files = self.scan_text_files_only(base_path)
+
+        for file_path in files:
+            try:
+                mission = self.extract_mission_from_path(file_path)
+                documents = self.process_text_file(file_path)
+
+                if not documents:
+                    continue
+
+                file_stats = self.add_documents_to_collection(
+                    documents, file_path, update_mode=update_mode
+                )
+
+                stats["files_processed"] += 1
+                stats["documents_added"] += file_stats["added"]
+                stats["documents_updated"] += file_stats["updated"]
+                stats["documents_skipped"] += file_stats["skipped"]
+                stats["total_chunks"] += len(documents)
+
+                if mission not in stats["missions"]:
+                    stats["missions"][mission] = {
+                        "files": 0, "chunks": 0,
+                        "added": 0, "updated": 0, "skipped": 0,
+                    }
+                stats["missions"][mission]["files"] += 1
+                stats["missions"][mission]["chunks"] += len(documents)
+                stats["missions"][mission]["added"] += file_stats["added"]
+                stats["missions"][mission]["updated"] += file_stats["updated"]
+                stats["missions"][mission]["skipped"] += file_stats["skipped"]
+
+                logger.info("Processed %s: %d chunks", file_path.name, len(documents))
+
+            except Exception as exc:
+                logger.error("Error processing %s: %s", file_path, exc)
+                stats["errors"] += 1
+
         return stats
     
     def get_collection_info(self) -> Dict[str, Any]:
         """Get information about the ChromaDB collection"""
-        # TODO: Return collection name, document count, metadata
-        pass
+        return {
+            "collection_name": self.collection.name,
+            "document_count": self.collection.count(),
+        }
     
     def query_collection(self, query_text: str, n_results: int = 5) -> Dict[str, Any]:
         """
@@ -523,8 +556,10 @@ class ChromaEmbeddingPipelineTextOnly:
         Returns:
             Query results
         """
-        # TODO: Perform test query and return results
-        pass
+        return self.collection.query(
+            query_texts=[query_text],
+            n_results=n_results,
+        )
     
     def get_collection_stats(self) -> Dict[str, Any]:
         """Get detailed statistics about the collection"""

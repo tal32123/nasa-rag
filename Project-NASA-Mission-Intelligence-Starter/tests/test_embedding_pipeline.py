@@ -219,3 +219,75 @@ class TestAddDocumentsToCollection:
 
         assert stats["added"] == 2
         assert stats["updated"] == 0
+
+
+class TestGetCollectionInfo:
+    def test_returns_name_and_count(self):
+        p = _make_pipeline()
+        p.collection.name = "nasa_missions"
+        p.collection.count.return_value = 250
+
+        info = p.get_collection_info()
+
+        assert info["collection_name"] == "nasa_missions"
+        assert info["document_count"] == 250
+
+
+class TestQueryCollection:
+    def test_delegates_to_collection_query(self):
+        p = _make_pipeline()
+        p.collection.query.return_value = {"documents": [["result"]]}
+
+        result = p.query_collection("moon landing", n_results=3)
+
+        p.collection.query.assert_called_once_with(
+            query_texts=["moon landing"], n_results=3
+        )
+        assert result["documents"] == [["result"]]
+
+
+class TestProcessAllTextData:
+    def test_returns_stats_dict_with_expected_keys(self):
+        p = _make_pipeline()
+        p.scan_text_files_only = MagicMock(return_value=[])
+
+        stats = p.process_all_text_data("./data_text")
+
+        assert "files_processed" in stats
+        assert "documents_added" in stats
+        assert "total_chunks" in stats
+        assert "errors" in stats
+        assert "missions" in stats
+
+    def test_processes_files_and_accumulates_stats(self, tmp_path):
+        p = _make_pipeline()
+        fake_file = tmp_path / "test.txt"
+        fake_file.write_text("hello world")
+
+        p.scan_text_files_only = MagicMock(return_value=[fake_file])
+        p.process_text_file = MagicMock(
+            return_value=[("chunk", {"mission": "apollo_11", "source": "test", "chunk_index": 0})]
+        )
+        p.add_documents_to_collection = MagicMock(
+            return_value={"added": 1, "updated": 0, "skipped": 0}
+        )
+
+        stats = p.process_all_text_data("./data_text")
+
+        assert stats["files_processed"] == 1
+        assert stats["documents_added"] == 1
+        assert stats["total_chunks"] == 1
+        assert stats["errors"] == 0
+
+    def test_errors_counted_on_exception(self):
+        p = _make_pipeline()
+        fake_path = MagicMock()
+        fake_path.name = "bad.txt"
+
+        p.scan_text_files_only = MagicMock(return_value=[fake_path])
+        p.process_text_file = MagicMock(side_effect=Exception("read error"))
+
+        stats = p.process_all_text_data("./data_text")
+
+        assert stats["errors"] == 1
+        assert stats["files_processed"] == 0
