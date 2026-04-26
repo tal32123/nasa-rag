@@ -60,10 +60,28 @@ class ChromaEmbeddingPipelineTextOnly:
             chunk_size: Maximum size of text chunks
             chunk_overlap: Overlap between chunks
         """
-        # TODO: Initialize OpenAI client
-        # TODO: Store configuration parameters
-        # TODO: Initialize ChromaDB client
-        # TODO: Create or get collection
+        self.openai_client = OpenAI(api_key=openai_api_key)
+        self.chroma_persist_directory = chroma_persist_directory
+        self.collection_name = collection_name
+        self.embedding_model = embedding_model
+        self.chunk_size = chunk_size
+        self.chunk_overlap = chunk_overlap
+
+        self.chroma_client = chromadb.PersistentClient(path=chroma_persist_directory)
+
+        embedding_fn = OpenAIEmbeddingFunction(
+            api_key=openai_api_key,
+            model_name=embedding_model,
+        )
+        self.collection = self.chroma_client.get_or_create_collection(
+            name=collection_name,
+            embedding_function=embedding_fn,
+        )
+        logger.info(
+            "Initialized collection '%s' with %d existing documents",
+            collection_name,
+            self.collection.count(),
+        )
     
     def chunk_text(self, text: str, metadata: Dict[str, Any]) -> List[Tuple[str, Dict[str, Any]]]:
         """
@@ -76,11 +94,34 @@ class ChromaEmbeddingPipelineTextOnly:
         Returns:
             List of (chunk_text, chunk_metadata) tuples
         """
-        # TODO: Handle short texts that don't need chunking
-        # TODO: Implement chunking logic with overlap
-        # TODO: Try to break at sentence boundaries
-        # TODO: Create metadata for each chunk
-        pass
+        if len(text) <= self.chunk_size:
+            return [(text, {**metadata, "chunk_index": 0, "total_chunks": 1})]
+
+        chunks: List[str] = []
+        start = 0
+
+        while start < len(text):
+            end = min(start + self.chunk_size, len(text))
+            chunk = text[start:end]
+
+            if end < len(text):
+                last_period = chunk.rfind(". ")
+                if last_period > self.chunk_size // 2:
+                    end = start + last_period + 2
+                    chunk = text[start:end]
+
+            chunks.append(chunk)
+
+            if end >= len(text):
+                break
+
+            start = end - self.chunk_overlap
+
+        total = len(chunks)
+        return [
+            (chunk, {**metadata, "chunk_index": i, "total_chunks": total})
+            for i, chunk in enumerate(chunks)
+        ]
     
     def check_document_exists(self, doc_id: str) -> bool:
         """
