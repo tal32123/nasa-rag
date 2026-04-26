@@ -24,18 +24,26 @@ def generate_response(
 
     messages: List[Dict] = [{"role": "system", "content": _SYSTEM_PROMPT}]
 
-    if context:
-        messages.append({
-            "role": "user",
-            "content": f"Please use the following NASA mission context for your answers:\n\n{context}",
-        })
-        messages.append({
-            "role": "assistant",
-            "content": "Understood. I will base my answers on the provided NASA mission context and cite sources.",
-        })
-
     messages.extend(conversation_history)
-    messages.append({"role": "user", "content": user_message})
 
-    response = client.chat.completions.create(model=model, messages=messages)
+    if context:
+        content = (
+            "Based on the following context documents, please answer the question. "
+            "If the context doesn't contain enough information to answer completely, "
+            "please say so and provide what information you can.\n\n"
+            f"Context Documents:\n{context}\n\n"
+            f"User Question: {user_message}\n\n"
+            "Please provide a comprehensive answer based on the context provided:"
+        )
+    else:
+        content = user_message
+
+    messages.append({"role": "user", "content": content})
+
+    response = client.chat.completions.create(
+        model=model,
+        messages=messages,
+        temperature=0.7,
+        max_completion_tokens=500,
+    )
     return response.choices[0].message.content
