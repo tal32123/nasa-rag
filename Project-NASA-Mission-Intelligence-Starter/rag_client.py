@@ -1,5 +1,7 @@
+import os
 import chromadb
 from chromadb.config import Settings
+from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction
 from typing import Dict, List, Optional
 from pathlib import Path
 
@@ -35,10 +37,19 @@ def discover_chroma_backends() -> Dict[str, Dict[str, str]]:
     # TODO: Return complete backends dictionary with all discovered collections
 
 def initialize_rag_system(chroma_dir: str, collection_name: str):
-    """Initialize the RAG system with specified backend (cached for performance)"""
-
-    # TODO: Create a chomadb persistentclient
-    # TODO: Return the collection with the collection_name
+    """Initialize the RAG system; returns (collection, success, error_message)."""
+    try:
+        api_key = os.environ.get("OPENAI_API_KEY") or os.environ.get("CHROMA_OPENAI_API_KEY", "")
+        embedding_fn = OpenAIEmbeddingFunction(
+            api_key=api_key, model_name="text-embedding-3-small"
+        )
+        client = chromadb.PersistentClient(path=chroma_dir)
+        collection = client.get_collection(
+            name=collection_name, embedding_function=embedding_fn
+        )
+        return collection, True, ""
+    except Exception as exc:
+        return None, False, str(exc)
 
 def retrieve_documents(collection, query: str, n_results: int = 3,
                       mission_filter: Optional[str] = None) -> Optional[Dict]:

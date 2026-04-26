@@ -96,3 +96,37 @@ class TestRetrieveDocuments:
         col = self._make_collection()
         result = rag_client.retrieve_documents(col, "query")
         assert result["documents"] == [["doc"]]
+
+
+class TestInitializeRagSystem:
+    def test_success_returns_collection_true_empty_error(self):
+        mock_col = MagicMock()
+        with patch("rag_client.chromadb.PersistentClient") as mock_cls, \
+             patch("rag_client.OpenAIEmbeddingFunction"), \
+             patch.dict(os.environ, {"OPENAI_API_KEY": "sk-test"}):
+            mock_cls.return_value.get_collection.return_value = mock_col
+            col, ok, err = rag_client.initialize_rag_system("./chroma_db", "test_col")
+        assert ok is True
+        assert err == ""
+        assert col is mock_col
+
+    def test_failure_returns_none_false_error_string(self):
+        with patch("rag_client.chromadb.PersistentClient") as mock_cls, \
+             patch("rag_client.OpenAIEmbeddingFunction"), \
+             patch.dict(os.environ, {"OPENAI_API_KEY": "sk-test"}):
+            mock_cls.side_effect = Exception("Cannot connect")
+            col, ok, err = rag_client.initialize_rag_system("./bad", "col")
+        assert ok is False
+        assert col is None
+        assert "Cannot connect" in err
+
+    def test_uses_chroma_openai_api_key_env_var(self):
+        with patch("rag_client.chromadb.PersistentClient"), \
+             patch("rag_client.OpenAIEmbeddingFunction") as mock_fn, \
+             patch.dict(os.environ, {"CHROMA_OPENAI_API_KEY": "sk-chroma"}, clear=True):
+            try:
+                rag_client.initialize_rag_system("./chroma_db", "col")
+            except Exception:
+                pass
+            call_kwargs = mock_fn.call_args.kwargs
+            assert call_kwargs["api_key"] == "sk-chroma"
