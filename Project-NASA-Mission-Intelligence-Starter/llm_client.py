@@ -40,10 +40,5 @@ def generate_response(
 
     messages.append({"role": "user", "content": content})
 
-    response = client.chat.completions.create(
-        model=model,
-        messages=messages,
-        temperature=0.7,
-        max_completion_tokens=500,
-    )
+    response = client.chat.completions.create(model=model, messages=messages)
     return response.choices[0].message.content
