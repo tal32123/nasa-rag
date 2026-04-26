@@ -316,6 +316,42 @@ If you encounter issues:
 5. Check data format and structure
 6. Review the completed implementation in `project_completed/` folder
 
+## 📋 Evaluation Dataset
+
+The file `evaluation_dataset.txt` in the project root contains a curated set of questions for testing the RAG pipeline against the actual NASA mission documents in `data_text/`.
+
+### What it contains
+
+22 questions spanning six categories — **Overview**, **Crew**, **Technical**, **Emergency**, **Disaster Analysis**, and **Timeline** — covering all three missions (Apollo 11, Apollo 13, and Challenger STS-51L). Every question is grounded in content from the source documents (transcripts, flight plans, and mission reports) so that a correctly implemented RAG system can retrieve relevant passages and produce accurate answers.
+
+### How to use it with the evaluation flow
+
+1. **Ensure the embedding pipeline has been run** so all `data_text/` documents are indexed in ChromaDB:
+   ```bash
+   python embedding_pipeline.py --openai-key YOUR_KEY --data-path ./data_text
+   ```
+
+2. **Run batch evaluation** by feeding each line of the file as a query through your RAG + LLM pipeline and collecting the RAGAS metrics:
+   ```python
+   from rag_client import RAGClient
+   from llm_client import generate_response
+   from ragas_evaluator import evaluate_response_quality
+
+   rag = RAGClient(...)
+   with open("evaluation_dataset.txt") as f:
+       questions = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+
+   for question in questions:
+       context = rag.retrieve(question)
+       answer = generate_response(api_key, question, context, [])
+       scores = evaluate_response_quality(question, answer, [context])
+       print(question, scores)
+   ```
+
+3. **Interpret results**: questions are prefixed with `[Category]` so you can group RAGAS scores by category (e.g., see whether *Emergency* or *Disaster Analysis* questions score lower than *Overview* questions) and identify which mission or document type needs better chunking or retrieval tuning.
+
+---
+
 ## 📝 Submission Guidelines
 
 When submitting your completed project:

@@ -119,6 +119,8 @@ def main():
         st.session_state.last_evaluation = None
     if "last_contexts" not in st.session_state:
         st.session_state.last_contexts = []
+    if "mission_filter" not in st.session_state:
+        st.session_state.mission_filter = "All Missions"
     
     # Sidebar for configuration
     with st.sidebar:
@@ -171,6 +173,28 @@ def main():
         # Retrieval settings
         st.subheader("🔍 Retrieval Settings")
         n_docs = st.slider("Documents to retrieve", 1, 10, 3)
+
+        # Mission filter
+        _MISSION_OPTIONS: List[str] = [
+            "All Missions",
+            "Apollo 11",
+            "Apollo 13",
+            "Challenger",
+        ]
+        _MISSION_SLUG_MAP: Dict[str, Optional[str]] = {
+            "All Missions": None,
+            "Apollo 11":    "apollo_11",
+            "Apollo 13":    "apollo_13",
+            "Challenger":   "challenger",
+        }
+        selected_mission_label: str = st.selectbox(
+            "Mission Filter",
+            options=_MISSION_OPTIONS,
+            index=_MISSION_OPTIONS.index(st.session_state.mission_filter),
+            help="Restrict retrieval to documents from a specific NASA mission",
+        )
+        st.session_state.mission_filter = selected_mission_label
+        mission_filter: Optional[str] = _MISSION_SLUG_MAP[selected_mission_label]
         
         # Evaluation settings
         st.subheader("📊 Evaluation Settings")
@@ -215,9 +239,10 @@ def main():
             with st.spinner("Searching documents and generating response..."):
                 # Retrieve relevant documents
                 docs_result = retrieve_documents(
-                    collection, 
-                    prompt, 
-                    n_docs
+                    collection,
+                    prompt,
+                    n_docs,
+                    mission_filter,
                 )
                 
                 # Format context
