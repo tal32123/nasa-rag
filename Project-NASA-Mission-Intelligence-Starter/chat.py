@@ -10,6 +10,9 @@ import streamlit as st
 import os
 import json
 import pandas as pd
+from dotenv import load_dotenv
+
+load_dotenv()
 
 import ragas_evaluator
 import rag_client
