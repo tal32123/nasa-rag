@@ -8,7 +8,7 @@ def generate_response(openai_key: str, user_message: str, context: str,
     # TODO: Define system prompt
     # TODO: Set context in messages
     # TODO: Add chat history
-    # TODO: Creaet OpenAI Client
+    # TODO: Create OpenAI Client
     # TODO: Send request to OpenAI
     # TODO: Return response
 
