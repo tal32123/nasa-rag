@@ -59,10 +59,11 @@ def retrieve_documents(collection, query: str, n_results: int = 3,
         st.error(f"Error retrieving documents: {e}")
         return None
 
-def format_context(documents: List[str], metadatas: List[Dict]) -> str:
+def format_context(documents: List[str], metadatas: List[Dict],
+                   distances: Optional[List[float]] = None,
+                   ids: Optional[List[str]] = None) -> str:
     """Format retrieved documents into context"""
-    
-    return rag_client.format_context(documents, metadatas)
+    return rag_client.format_context(documents, metadatas, distances, ids)
 
 def generate_response(openai_key, user_message: str, context: str, 
                      conversation_history: List[Dict], model: str = "gpt-3.5-turbo") -> str:
@@ -249,7 +250,12 @@ def main():
                 context = ""
                 contexts_list = []
                 if docs_result and docs_result.get("documents"):
-                    context = format_context(docs_result["documents"][0], docs_result["metadatas"][0])
+                    context = format_context(
+                        docs_result["documents"][0],
+                        docs_result["metadatas"][0],
+                        docs_result["distances"][0] if docs_result.get("distances") else None,
+                        docs_result["ids"][0] if docs_result.get("ids") else None,
+                    )
                     contexts_list = docs_result["documents"][0]
                     st.session_state.last_contexts = contexts_list
                 
