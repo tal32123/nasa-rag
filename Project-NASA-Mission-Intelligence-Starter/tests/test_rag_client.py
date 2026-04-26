@@ -64,3 +64,35 @@ class TestFormatContext:
         metas = [{"mission": "apollo_11", "source": "s", "document_category": "c"}]
         result = rag_client.format_context(docs, metas)
         assert "Apollo 11" in result
+
+
+class TestRetrieveDocuments:
+    def _make_collection(self):
+        col = MagicMock()
+        col.query.return_value = {"documents": [["doc"]], "metadatas": [[{"mission": "apollo_11"}]]}
+        return col
+
+    def test_no_filter_passes_none_where(self):
+        col = self._make_collection()
+        rag_client.retrieve_documents(col, "moon landing", n_results=3)
+        col.query.assert_called_once_with(
+            query_texts=["moon landing"], n_results=3, where=None
+        )
+
+    def test_mission_filter_applied(self):
+        col = self._make_collection()
+        rag_client.retrieve_documents(col, "explosion", n_results=5, mission_filter="apollo_13")
+        col.query.assert_called_once_with(
+            query_texts=["explosion"], n_results=5, where={"mission": "apollo_13"}
+        )
+
+    def test_filter_all_treated_as_no_filter(self):
+        col = self._make_collection()
+        rag_client.retrieve_documents(col, "query", mission_filter="all")
+        call_kwargs = col.query.call_args.kwargs
+        assert call_kwargs["where"] is None
+
+    def test_returns_query_result(self):
+        col = self._make_collection()
+        result = rag_client.retrieve_documents(col, "query")
+        assert result["documents"] == [["doc"]]

@@ -40,21 +40,15 @@ def initialize_rag_system(chroma_dir: str, collection_name: str):
     # TODO: Create a chomadb persistentclient
     # TODO: Return the collection with the collection_name
 
-def retrieve_documents(collection, query: str, n_results: int = 3, 
+def retrieve_documents(collection, query: str, n_results: int = 3,
                       mission_filter: Optional[str] = None) -> Optional[Dict]:
     """Retrieve relevant documents from ChromaDB with optional filtering"""
-
-    # TODO: Initialize filter variable to None (represents no filtering)
-
-    # TODO: Check if filter parameter exists and is not set to "all" or equivalent
-    # TODO: If filter conditions are met, create filter dictionary with appropriate field-value pairs
-
-    # TODO: Execute database query with the following parameters:
-        # TODO: Pass search query in the required format
-        # TODO: Set maximum number of results to return
-        # TODO: Apply conditional filter (None for no filtering, dictionary for specific filtering)
-
-    # TODO: Return query results to caller
+    where = (
+        {"mission": mission_filter}
+        if mission_filter and mission_filter.lower() != "all"
+        else None
+    )
+    return collection.query(query_texts=[query], n_results=n_results, where=where)
 
 def format_context(documents: List[str], metadatas: List[Dict]) -> str:
     """Format retrieved documents into context"""
