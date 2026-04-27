@@ -17,7 +17,12 @@ except ImportError:
     RAGAS_AVAILABLE = False
 
 
-def evaluate_response_quality(question: str, answer: str, contexts: List[str]) -> Dict[str, float]:
+def evaluate_response_quality(
+    question: str,
+    answer: str,
+    contexts: List[str],
+    reference_answer: Optional[str] = None,
+) -> Dict[str, float]:
     """Evaluate response quality using RAGAS metrics"""
     if not RAGAS_AVAILABLE:
         return {"error": "RAGAS not available"}
@@ -36,7 +41,7 @@ def evaluate_response_quality(question: str, answer: str, contexts: List[str]) -
     evaluator_llm = LangchainLLMWrapper(ChatOpenAI(model="gpt-3.5-turbo"))
     evaluator_embeddings = LangchainEmbeddingsWrapper(OpenAIEmbeddings(model="text-embedding-3-small"))
 
-    reference = " ".join(contexts)
+    reference = reference_answer.strip() if reference_answer and reference_answer.strip() else " ".join(contexts)
 
     sample = SingleTurnSample(
         user_input=question,
@@ -72,8 +77,13 @@ def batch_evaluate(
     rag_collection,
     openai_key: str,
     model: str = "gpt-3.5-turbo",
+    n_results: int = 5,
+    mission_filter: Optional[str] = None,
 ) -> Dict:
-    """Evaluate a set of questions loaded from a JSON or TXT file."""
+    """Run the full RAG pipeline on each test question and evaluate with RAGAS."""
+    from rag_client import retrieve_documents, format_context
+    from llm_client import generate_response
+
     if openai_key:
         os.environ["OPENAI_API_KEY"] = openai_key
 
@@ -87,30 +97,54 @@ def batch_evaluate(
                 if isinstance(item, dict):
                     q = item.get("question", "").strip()
                     if q:
-                        questions.append({"question": q, "answer": item.get("answer", ""), "contexts": item.get("contexts", [])})
+                        questions.append({
+                            "question": q,
+                            "reference_answer": item.get("reference_answer", ""),
+                        })
                 elif isinstance(item, str) and item.strip():
-                    questions.append({"question": item.strip(), "answer": "", "contexts": []})
+                    questions.append({"question": item.strip(), "reference_answer": ""})
     else:
         with open(test_file_path, "r", encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if line:
-                    questions.append({"question": line, "answer": "", "contexts": []})
+                    questions.append({"question": line, "reference_answer": ""})
 
     results = []
     for item in questions:
-        scores = evaluate_response_quality(
-            item["question"],
-            item["answer"] if item["answer"] else "No answer provided.",
-            item["contexts"] if item["contexts"] else ["No context available."],
+        question = item["question"]
+        reference_answer = item.get("reference_answer", "")
+
+        # Retrieve context from ChromaDB
+        docs_result = retrieve_documents(
+            rag_collection, question, n_results=n_results, mission_filter=mission_filter
         )
-        results.append({"question": item["question"], **scores})
+        docs = docs_result["documents"][0] if docs_result and docs_result.get("documents") else []
+        metas = docs_result["metadatas"][0] if docs_result and docs_result.get("metadatas") else []
+        context = format_context(docs, metas)
+
+        # Generate answer via LLM
+        answer = generate_response(openai_key, question, context, [], model=model)
+
+        # Evaluate
+        scores = evaluate_response_quality(
+            question,
+            answer,
+            docs if docs else ["No context available."],
+            reference_answer=reference_answer,
+        )
+        results.append({
+            "question": question,
+            "answer": answer,
+            "reference_answer": reference_answer,
+            **scores,
+        })
 
     # Aggregate numeric scores per metric
     metric_keys = set()
     for r in results:
         for k in r:
-            if k not in ("question", "error"):
+            if k not in ("question", "answer", "reference_answer", "error"):
                 metric_keys.add(k)
 
     aggregate = {}
