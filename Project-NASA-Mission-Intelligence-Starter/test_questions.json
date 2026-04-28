@@ -1,0 +1,90 @@
+[
+  {
+    "question": "What was the primary objective of the Apollo 11 mission, and was it fully accomplished according to the Saturn V flight evaluation report AS-506?",
+    "reference_answer": "The primary objective of Apollo 11 was to perform a manned lunar landing and return safely to Earth, fulfilling President Kennedy's national goal. The mission was fully accomplished: Neil Armstrong and Buzz Aldrin landed in the Sea of Tranquility on July 20, 1969, while Michael Collins orbited in the Command Module Columbia. The Saturn V AS-506 flight evaluation report confirmed all mission objectives were met."
+  },
+  {
+    "question": "How many times had Orbiter Challenger flown before the STS-51L mission, and what was the overall launch count for the Space Transportation System at that point?",
+    "reference_answer": "Orbiter Challenger (OV-099) had flown 9 previous missions before STS-51L, making STS-51L its 10th and final flight. The Space Transportation System had completed 24 previous flights, so STS-51L was the 25th overall shuttle mission."
+  },
+  {
+    "question": "What were the call signs assigned to the Apollo 13 command module and lunar module during the mission when both spacecraft were manned?",
+    "reference_answer": "The Apollo 13 Command Module was named Odyssey and the Lunar Module was named Aquarius. Both spacecraft were manned simultaneously during the emergency after the oxygen tank explosion, when the crew transferred to Aquarius and used it as a lifeboat while Odyssey was powered down to conserve its re-entry batteries."
+  },
+  {
+    "question": "Who were the three crew members aboard Apollo 13 at launch, and what roles did each hold?",
+    "reference_answer": "The three crew members were James A. Lovell Jr. as Commander, John L. Swigert Jr. as Command Module Pilot, and Fred W. Haise Jr. as Lunar Module Pilot."
+  },
+  {
+    "question": "Which original Apollo 13 crew member was replaced shortly before launch, who replaced him, and what was the medical reason given for the substitution?",
+    "reference_answer": "Ken Mattingly, the original Command Module Pilot, was replaced by Jack Swigert shortly before launch. The substitution was made because Mattingly had been exposed to German measles (rubella) by backup crew member Charlie Duke, and flight surgeons were concerned he might develop symptoms during the mission. Mattingly never did contract the measles."
+  },
+  {
+    "question": "Who were the seven crew members of Challenger mission STS-51L, including their respective roles, and what made Christa McAuliffe's participation historically notable?",
+    "reference_answer": "The seven crew members were Francis R. Scobee (Commander), Michael J. Smith (Pilot), mission specialists Judith A. Resnik, Ellison S. Onizuka, and Ronald E. McNair, payload specialist Gregory B. Jarvis, and Sharon Christa McAuliffe (payload specialist). McAuliffe was a high school social studies teacher from Concord, New Hampshire, selected through NASA's Teacher in Space Project, making her the first civilian schoolteacher chosen to fly in space."
+  },
+  {
+    "question": "At what exact time and from which launch pad was Saturn V AS-506 (Apollo 11) launched, and what was the vehicle's flight azimuth after the roll maneuver?",
+    "reference_answer": "Saturn V AS-506 launched from Launch Complex 39A at Kennedy Space Center on July 16, 1969, at 9:32:00 AM EDT (13:32:00 UTC). After the roll maneuver the vehicle flew a flight azimuth of approximately 72 degrees east of north."
+  },
+  {
+    "question": "In the Apollo 13 technical air-to-ground transcript, what specific electrical fault did Commander Jim Lovell first report to Houston at mission elapsed time 02:07:55, and what physical event accompanied it according to Fred Haise?",
+    "reference_answer": "At MET 02:07:55, Jim Lovell reported to Houston that the crew had a problem, identifying a main bus undervolt and a sharp drop in oxygen quantity. Fred Haise reported that the event was accompanied by a loud bang felt throughout the spacecraft, and the crew observed a pressure drop in oxygen tank 2 in the Service Module."
+  },
+  {
+    "question": "What improvised device did Mission Control instruct the Apollo 13 crew to build using lithium hydroxide canisters and other available materials to control carbon dioxide levels in the lunar module Aquarius?",
+    "reference_answer": "Mission Control instructed the crew to build a makeshift carbon dioxide scrubber adapter — informally called the mailbox — to connect the Command Module's square lithium hydroxide canisters to the Lunar Module's round canister ports. The device used materials already aboard: cardboard from the flight plan cover, plastic bags, suit hoses, and gray duct tape. The instructions were read up from Mission Control and the crew successfully assembled the adapter, bringing CO2 levels down to safe levels."
+  },
+  {
+    "question": "According to the Apollo 11 flight plan, at approximately what ground elapsed time (GET) did Translunar Injection (TLI) occur, and over which ocean did it take place?",
+    "reference_answer": "Translunar Injection occurred at approximately 2 hours 44 minutes GET, during the spacecraft's third orbit of Earth. The TLI burn took place over the Pacific Ocean."
+  },
+  {
+    "question": "What were the exact words used by Commander Jim Lovell when he first reported the Apollo 13 emergency to Mission Control, and what system fault did he identify?",
+    "reference_answer": "Jim Lovell's exact words were: 'Houston, we've had a problem here.' He identified a main bus B undervolt, and the crew also reported a sharp drop in oxygen quantity in tank 2 of the Service Module. The famous paraphrase 'Houston, we have a problem' used in popular culture is not the verbatim quote from the transcript."
+  },
+  {
+    "question": "During the Apollo 13 emergency, what role did the lunar module Aquarius play, and what evidence from the transcripts shows the crew transitioned to using it?",
+    "reference_answer": "Aquarius served as a lifeboat for the crew for approximately four days after the Service Module oxygen tank explosion made Odyssey uninhabitable. The transcripts show the crew powering down the Command Module and transferring to Aquarius, which supplied life support, electrical power, and propulsion. The crew used Aquarius's descent engine for the PC+2 burn to reshape their trajectory for a return to Earth, and only re-entered Odyssey shortly before splashdown."
+  },
+  {
+    "question": "What weather-related concerns caused multiple launch scrubs and delays to the Challenger STS-51L mission in the days leading up to the final launch attempt on January 28, 1986?",
+    "reference_answer": "Cold temperatures and ice formation were the primary weather-related concerns. On January 27, 1986, a launch attempt was scrubbed due to a stuck hatch bolt and high crosswinds. Overnight temperatures at the Kennedy Space Center launch pad dropped to around 18-29 degrees Fahrenheit, far below the designed operating temperature for the solid rocket booster O-ring seals, causing extensive ice formation on the launch structure. Ice inspection teams made multiple checks of the pad before the January 28 launch proceeded."
+  },
+  {
+    "question": "After the Challenger STS-51L breakup, what immediate operational steps did NASA management take regarding ongoing flight operations, and what investigative bodies were established according to the post-accident press conference transcripts?",
+    "reference_answer": "NASA immediately suspended all Space Shuttle flight operations following the Challenger accident. President Reagan established the Presidential Commission on the Space Shuttle Challenger Accident, chaired by former Secretary of State William P. Rogers and known as the Rogers Commission. NASA also initiated its own internal review. The shuttle program did not return to flight until September 1988 with STS-26."
+  },
+  {
+    "question": "According to the post-accident Challenger press conference transcripts, what physical concerns about the launch pad had been raised by personnel before the STS-51L launch, and how did NASA officials characterize the risk assessment they conducted?",
+    "reference_answer": "Personnel raised concerns about the extensive ice formation on the launch pad structure overnight before the January 28 launch. Ice inspection teams documented ice throughout the fixed service structure and on various pad components. NASA officials stated that following their ice inspection and risk assessment, they determined the ice was not a flight safety threat to the orbiter, characterizing the risk as acceptable and clearing the launch to proceed."
+  },
+  {
+    "question": "In the Challenger post-accident transcripts, what questions were raised about the solid rocket boosters and the role of freezing temperatures as a possible contributing factor to the disaster?",
+    "reference_answer": "Questions focused on whether the O-ring seals in the solid rocket booster field joints had failed to seat properly due to the extremely cold overnight temperatures at the pad on January 28, 1986. It was noted that temperatures around 18-29 degrees Fahrenheit were far below the O-rings' designed operating range, potentially making them brittle and less capable of sealing the joint. Post-accident analysis confirmed that the right SRB aft field joint O-ring failed to seal, allowing hot combustion gases to breach the joint and ultimately cause structural failure of the external tank."
+  },
+  {
+    "question": "According to the Apollo 11 mission report (NASA SP-238), what was the condition of all three crew members when examined on recovery day after splashdown in the Pacific Ocean?",
+    "reference_answer": "According to the Apollo 11 mission report, all three crew members — Neil Armstrong, Buzz Aldrin, and Michael Collins — were in excellent health when examined by physicians on recovery day following splashdown in the Pacific Ocean on July 24, 1969. No mission-related medical issues were identified."
+  },
+  {
+    "question": "The Apollo 13 mission placed the spacecraft into a non-free return trajectory before the accident. What consequence did this have for the crew's ability to return to Earth once the emergency occurred?",
+    "reference_answer": "Before the accident, Apollo 13 had been maneuvered from its free-return trajectory to a hybrid (non-free-return) trajectory to enable a landing at the Fra Mauro highlands. After the oxygen tank explosion, this meant the spacecraft would not automatically loop around the Moon and return to Earth on its own. The crew had to perform a critical engine burn — the PC+2 (pericynthion plus 2 hours) burn using the Lunar Module descent engine — to reshape their trajectory back onto a return path, adding complexity and risk to an already extremely dangerous emergency situation."
+  },
+  {
+    "question": "According to the Apollo 11 mission report, on what date and at what ground elapsed time did the Apollo 11 command module splash down, and what was the primary recovery ship?",
+    "reference_answer": "The Apollo 11 Command Module splashed down on July 24, 1969, at approximately 195 hours 18 minutes 35 seconds ground elapsed time, in the Pacific Ocean. The primary recovery ship was USS Hornet."
+  },
+  {
+    "question": "Based on the Apollo 13 PAO commentary, on what calendar date did the Apollo 13 mission launch, and approximately how far into the mission did the oxygen tank emergency occur given the transcript time stamp of 02:07:55?",
+    "reference_answer": "Apollo 13 launched on April 11, 1970. The oxygen tank emergency at mission elapsed time 02:07:55 occurred approximately 2 days, 7 hours, and 55 minutes into the mission, which corresponds to the evening of April 13, 1970 — lending the mission its ominous association with the date."
+  },
+  {
+    "question": "In the Challenger STS-51L countdown, at what clock time did the final hold occur before the launch attempt was scrubbed on the day prior to the fatal launch, and what was the stated reason for that scrub?",
+    "reference_answer": "On January 27, 1986, the Challenger launch attempt was scrubbed during a lengthy hold. The primary stated reasons were difficulty removing an exterior hatch handle bolt — a drain plug that could not be extracted with standard tools — and high crosswind conditions at the Shuttle Landing Facility that exceeded limits for a return-to-launch-site abort. The scrub occurred after the countdown had been held for several hours."
+  },
+  {
+    "question": "According to the Apollo 11 flight plan, what was the planned duration of the Translunar Coast phase, and at approximately what GET did Lunar Orbit Insertion (LOI-1) occur?",
+    "reference_answer": "The Translunar Coast phase was planned to last approximately 3 days. Translunar Injection occurred at approximately 2 hours 44 minutes GET on July 16, 1969, and Lunar Orbit Insertion LOI-1 occurred at approximately 75 hours 50 minutes GET on July 19, 1969, after roughly 73 hours of translunar coast."
+  }
+]

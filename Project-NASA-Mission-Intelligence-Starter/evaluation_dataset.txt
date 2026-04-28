@@ -1,0 +1,43 @@
+[Overview] What was the primary objective of the Apollo 11 mission, and was it fully accomplished according to the Saturn V flight evaluation report AS-506?
+
+[Overview] How many times had the Orbiter Challenger flown before the STS-51L mission, and what was the overall launch count for the Space Transportation System at that point?
+
+[Overview] What were the call signs assigned to the Apollo 13 command module and lunar module during the mission when both spacecraft were manned?
+
+[Crew] Who were the three crew members aboard Apollo 13 at launch, and what roles did each hold?
+
+[Crew] Which original Apollo 13 crew member was replaced shortly before launch, who replaced him, and what was the medical reason given for the substitution?
+
+[Crew] Who were the seven crew members of Challenger mission STS-51L, including their respective roles, and what made Christa McAuliffe's participation historically notable?
+
+[Technical] At what exact time and from which launch pad was Saturn V AS-506 (Apollo 11) launched, and what was the vehicle's flight azimuth after the roll maneuver?
+
+[Technical] In the Apollo 13 technical air-to-ground transcript, what specific electrical fault did Commander Jim Lovell first report to Houston at mission elapsed time 02:07:55, and what physical event accompanied it according to Fred Haise?
+
+[Technical] What improvised device did Mission Control instruct the Apollo 13 crew to build using lithium hydroxide canisters and other available materials to control carbon dioxide levels in the lunar module Aquarius?
+
+[Technical] According to the Apollo 11 flight plan, at approximately what ground elapsed time (GET) did Translunar Injection (TLI) occur, and over which ocean did it take place?
+
+[Emergency] What were the exact words used by Commander Jim Lovell when he first reported the Apollo 13 emergency to Mission Control, and what system fault did he identify?
+
+[Emergency] During the Apollo 13 emergency, what role did the lunar module Aquarius play, and what evidence from the transcripts shows the crew transitioned to using it?
+
+[Emergency] What weather-related concerns caused multiple launch scrubs and delays to the Challenger STS-51L mission in the days leading up to the final launch attempt on January 28, 1986?
+
+[Emergency] After the Challenger STS-51L breakup, what immediate operational steps did NASA management take regarding ongoing flight operations, and what investigative bodies were established according to the post-accident press conference transcripts?
+
+[Disaster Analysis] According to the post-accident Challenger press conference transcripts, what physical concerns about the launch pad had been raised by personnel before the STS-51L launch, and how did NASA officials characterize the risk assessment they conducted?
+
+[Disaster Analysis] In the Challenger post-accident transcripts, what questions were raised about the solid rocket boosters and the role of freezing temperatures as a possible contributing factor to the disaster?
+
+[Disaster Analysis] According to the Apollo 11 mission report (NASA SP-238), what was the condition of all three crew members when examined on recovery day after splashdown in the Pacific Ocean?
+
+[Disaster Analysis] The Apollo 13 mission placed the spacecraft into a non-free return trajectory before the accident. What consequence did this have for the crew's ability to return to Earth once the emergency occurred?
+
+[Timeline] According to the Apollo 11 mission report, on what date and at what ground elapsed time did the Apollo 11 command module splash down, and what was the primary recovery ship?
+
+[Timeline] Based on the Apollo 13 PAO commentary, on what calendar date did the Apollo 13 mission launch, and approximately how far into the mission (in days and hours) did the oxygen tank emergency occur given the transcript time stamp of 02:07:55?
+
+[Timeline] In the Challenger STS-51L countdown, at what clock time did the final hold occur before the launch attempt was scrubbed on the day prior to the fatal launch, and what was the stated reason for that scrub?
+
+[Timeline] According to the Apollo 11 flight plan, what was the planned duration of the Translunar Coast phase, and at approximately what GET did Lunar Orbit Insertion (LOI-1) occur?
