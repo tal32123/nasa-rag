@@ -1,4 +1,6 @@
 import os
+import json
+import statistics
 import pandas as pd
 import streamlit as st
 from dotenv import load_dotenv
@@ -9,6 +11,7 @@ load_dotenv()
 
 import rag_client
 import ragas_evaluator
+import llm_client
 
 st.set_page_config(page_title="Batch Evaluation", page_icon="📊", layout="wide")
 st.title("📊 Batch Evaluation")
@@ -68,11 +71,53 @@ test_file = col_file.selectbox(
 run = col_btn.button("▶ Run", type="primary", use_container_width=True)
 
 if run:
-    with st.spinner("Running evaluation — this may take a few minutes…"):
-        st.session_state["batch_results"] = ragas_evaluator.batch_evaluate(
-            test_file, collection, openai_key, model=model,
-            n_results=n_results, mission_filter=mission_filter,
+    # Load questions
+    questions = []
+    if test_file.endswith(".json"):
+        with open(test_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        for item in data:
+            if isinstance(item, dict) and item.get("question"):
+                questions.append({"question": item["question"], "reference_answer": item.get("reference_answer", "")})
+    else:
+        with open(test_file, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    questions.append({"question": line, "reference_answer": ""})
+
+    total = len(questions)
+    st.markdown(f"Running **{total} questions**…")
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+    results_list = []
+
+    for i, item in enumerate(questions, start=1):
+        status_text.markdown(f"Question **{i} / {total}** — *{item['question'][:80]}…*")
+        progress_bar.progress(i / total)
+
+        docs_result = rag_client.retrieve_documents(collection, item["question"], n_results, mission_filter)
+        docs = docs_result["documents"][0] if docs_result and docs_result.get("documents") else []
+        metas = docs_result["metadatas"][0] if docs_result and docs_result.get("metadatas") else []
+        context = rag_client.format_context(docs, metas)
+
+        answer = llm_client.generate_response(openai_key, item["question"], context, [], model=model)
+
+        scores = ragas_evaluator.evaluate_response_quality(
+            item["question"], answer, docs or ["No context available."],
+            reference_answer=item["reference_answer"] or None,
         )
+        results_list.append({"question": item["question"], "answer": answer,
+                              "reference_answer": item["reference_answer"], **scores})
+
+    status_text.success(f"Done — {total} questions evaluated.")
+    progress_bar.progress(1.0)
+
+    metric_keys = {k for r in results_list for k in r if k not in ("question", "answer", "reference_answer", "error")}
+    aggregate = {k: statistics.mean(r[k] for r in results_list if isinstance(r.get(k), (int, float)))
+                 for k in metric_keys}
+
+    st.session_state["batch_results"] = {"results": results_list, "aggregate": aggregate}
 
 # ── Results ────────────────────────────────────────────────────────────────────
 results = st.session_state.get("batch_results")
