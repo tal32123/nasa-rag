@@ -48,6 +48,7 @@ def initialize_rag_system(chroma_dir: str, collection_name: str):
     """Initialize the RAG system; returns (collection, success, error_message)."""
     try:
         api_key = os.environ.get("OPENAI_API_KEY") or os.environ.get("CHROMA_OPENAI_API_KEY", "")
+        # text-embedding-3-small offers strong semantic search quality at low cost vs. larger models
         embedding_fn = OpenAIEmbeddingFunction(
             api_key=api_key, model_name="text-embedding-3-small"
         )
@@ -62,6 +63,7 @@ def initialize_rag_system(chroma_dir: str, collection_name: str):
 def retrieve_documents(collection, query: str, n_results: int = 3,
                       mission_filter: Optional[str] = None) -> Optional[Dict]:
     """Retrieve relevant documents from ChromaDB with optional filtering"""
+    # ChromaDB requires where=None (not an empty dict) to search across all documents
     where = (
         {"mission": mission_filter}
         if mission_filter and mission_filter.lower() != "all"
@@ -74,9 +76,11 @@ def format_context(documents: List[str], metadatas: List[Dict]) -> str:
     if not documents:
         return ""
 
+    # Truncate per chunk so one large chunk can't monopolize the LLM context window
     _MAX_CHARS = 1500
     parts = ["=== Retrieved NASA Mission Context ===\n"]
 
+    # ChromaDB can return duplicate chunks when top-k results overlap; skip repeats
     seen: set = set()
     for i, (doc, meta) in enumerate(zip(documents, metadatas), start=1):
         if doc in seen:

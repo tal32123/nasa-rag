@@ -7,7 +7,7 @@ from langchain_openai import ChatOpenAI
 from langchain_openai import OpenAIEmbeddings
 from typing import Dict, List, Optional
 
-# RAGAS imports
+# RAGAS imports — guarded so the rest of the system works even if ragas isn't installed
 try:
     from ragas import SingleTurnSample, EvaluationDataset
     from ragas.metrics import BleuScore, NonLLMContextPrecisionWithReference, ResponseRelevancy, Faithfulness, RougeScore
@@ -41,6 +41,7 @@ def evaluate_response_quality(
     evaluator_llm = LangchainLLMWrapper(ChatOpenAI(model="gpt-3.5-turbo"))
     evaluator_embeddings = LangchainEmbeddingsWrapper(OpenAIEmbeddings(model="text-embedding-3-small"))
 
+    # RAGAS requires a reference string; fall back to joined contexts as a proxy when no ground-truth answer is provided
     reference = reference_answer.strip() if reference_answer and reference_answer.strip() else " ".join(contexts)
 
     sample = SingleTurnSample(
@@ -52,8 +53,10 @@ def evaluate_response_quality(
     dataset = EvaluationDataset(samples=[sample])
 
     metrics = [
+        # Rubric primary metrics: Faithfulness catches hallucination, ResponseRelevancy checks answer quality
         ResponseRelevancy(llm=evaluator_llm, embeddings=evaluator_embeddings),
         Faithfulness(llm=evaluator_llm),
+        # Rubric additional metrics: reference-based, fast, and require no extra API call
         BleuScore(),
         RougeScore(),
     ]
@@ -81,6 +84,7 @@ def batch_evaluate(
     mission_filter: Optional[str] = None,
 ) -> Dict:
     """Run the full RAG pipeline on each test question and evaluate with RAGAS."""
+    # Deferred imports avoid circular dependency: rag_client/llm_client may import from this module
     from rag_client import retrieve_documents, format_context
     from llm_client import generate_response
 

@@ -106,6 +106,7 @@ class ChromaEmbeddingPipelineTextOnly:
 
             if end < len(text):
                 last_period = chunk.rfind(". ")
+                # Break at the last sentence boundary to avoid splitting mid-sentence, preserving semantic coherence.
                 if last_period > self.chunk_size // 2:
                     end = start + last_period + 2
                     chunk = text[start:end]
@@ -115,6 +116,7 @@ class ChromaEmbeddingPipelineTextOnly:
             if end >= len(text):
                 break
 
+            # Overlap ensures context at chunk boundaries isn't lost during retrieval.
             start = end - self.chunk_overlap
 
         total = len(chunks)
@@ -248,6 +250,7 @@ class ChromaEmbeddingPipelineTextOnly:
         Generate stable document ID based on file path and chunk position
         This allows for document updates without changing IDs
         """
+        # Deterministic ID: the same file+chunk position always yields the same ID, enabling idempotent skip/update behavior.
         mission = metadata.get("mission", "unknown")
         source = metadata.get("source", file_path.stem)
         chunk_index = metadata.get("chunk_index", 0)
@@ -427,6 +430,7 @@ class ChromaEmbeddingPipelineTextOnly:
         if update_mode == "replace":
             existing_ids = self.get_file_documents(file_path)
             if existing_ids:
+                # Delete all old chunks first: re-chunking may produce a different count, so upsert-by-ID would leave stale chunks.
                 self.collection.delete(ids=existing_ids)
                 logger.info("Deleted %d existing chunks for %s", len(existing_ids), file_path.name)
 
@@ -585,7 +589,7 @@ class ChromaEmbeddingPipelineTextOnly:
                 doc_category = metadata.get('document_category', 'unknown')
                 file_type = metadata.get('file_type', 'unknown')
                 
-                # Count by mission
+                # Aggregate by mission — the most actionable breakdown for this multi-mission NASA dataset.
                 stats['missions'][mission] = stats['missions'].get(mission, 0) + 1
                 
                 # Count by data type

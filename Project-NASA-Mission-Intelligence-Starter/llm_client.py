@@ -2,6 +2,7 @@ from typing import Dict, List
 
 from openai import OpenAI
 
+# Restricting to provided context prevents the model from hallucinating facts outside the retrieved documents.
 _SYSTEM_PROMPT = (
     "You are an expert NASA mission analyst with deep knowledge of space exploration history. "
     "Answer questions based solely on the provided context from NASA mission archives. "
@@ -24,9 +25,11 @@ def generate_response(
 
     messages: List[Dict] = [{"role": "system", "content": _SYSTEM_PROMPT}]
 
+    # History must precede the current turn so the model sees prior exchanges in chronological order.
     messages.extend(conversation_history)
 
     if context:
+        # Embedding context in the real user message avoids adding synthetic turns that would corrupt history.
         content = (
             "Based on the following context documents, please answer the question. "
             "If the context doesn't contain enough information to answer completely, "
